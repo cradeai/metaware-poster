@@ -1,0 +1,79 @@
+name: Post next from queue
+
+# Runs 2x/day Tallinn time. Cron is in UTC.
+# Tallinn = UTC+3 (summer) / UTC+2 (winter). Schedules below assume summer time;
+# in winter posts will land 1h earlier (17:00, 19:00) — acceptable.
+on:
+  schedule:
+    - cron: "0 15 * * *"   # 18:00 Tallinn (summer)
+    - cron: "0 17 * * *"   # 20:00 Tallinn (summer)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Skip media_publish (test full pipeline without posting to IG)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # for committing queue → posted/
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: post-queue
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Skip if last post was less than 60 min ago
+        id: recent
+        run: |
+          LAST=$(git log -1 --grep='^post:' --format='%ct' 2>/dev/null || echo 0)
+          NOW=$(date +%s)
+          if [ "$LAST" = "0" ] || [ -z "$LAST" ]; then
+            echo "no prior post commit found"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          AGE=$((NOW - LAST))
+          AGE_MIN=$((AGE / 60))
+          echo "last post commit was $AGE_MIN min ago"
+          if [ "$AGE_MIN" -lt 60 ]; then
+            echo "skipping (last post too recent)"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Python
+        if: steps.recent.outputs.skip != 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Post next reel
+        if: steps.recent.outputs.skip != 'true'
+        env:
+          METAWARE_INSTAGRAM_ACCESS_TOKEN: ${{ secrets.METAWARE_INSTAGRAM_ACCESS_TOKEN }}
+          METAWARE_INSTAGRAM_USER_ID: ${{ secrets.METAWARE_INSTAGRAM_USER_ID }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
+        run: python3 post_scheduled.py
+
+      - name: Commit queue → posted move
+        if: steps.recent.outputs.skip != 'true' && !inputs.dry_run
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A queue/ posted/ logs/ failed/
+          if git diff --cached --quiet; then
+            echo "no changes to commit"
+          else
+            STAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
+            git commit -m "post: queue → posted ($STAMP)"
+            git push
+          fi

@@ -1,0 +1,13 @@
+Huawei just baked pose guidance into the camera itself — not as a post-shot fix, but as live coaching before the shutter fires.
+
+Most phones still try to clean up your photos after the fact. This one reads the scene in real time and tells you how to stand, what angle works, where to look.
+
+It's not the first pose helper, but the others felt generic. This one reacts to whatever's actually happening in front of the lens — different scene, different suggestion.
+
+Less editing after the shot. More nailing it on take one.
+
+Of all the AI camera tricks shipped this year, this is one that actually changes how you take a photo.
+
+Follow @metawareai for more.
+
+#ai #technology

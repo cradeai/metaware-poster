@@ -1,0 +1,11 @@
+Every message you send to an LLM costs tokens — including the throwaway ones. A simple 'Hello' or 'Hey, how are you?' still gets processed, still eats into your session limit, still generates a long response you never needed.
+
+Engineers who work with LLMs at scale already treat every prompt like a limited resource. They strip filler, front-load context, and structure inputs so the model spends its capacity on useful output.
+
+Most casual users do the opposite. They open with greetings, paste unstructured text, and let long threads pile up — which costs more with every message because the model reprocesses the entire history each time.
+
+The people getting the most out of Claude right now are not the ones asking for bigger limits. They are the ones wasting the fewest tokens on messages that do not need to be sent.
+
+Follow @metawareai for more.
+
+#ai #technology
