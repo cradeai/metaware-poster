@@ -1,12 +1,11 @@
 name: Post next from queue
 
-# Runs 2x/day Tallinn time. Cron is in UTC.
-# Tallinn = UTC+3 (summer) / UTC+2 (winter). Schedules below assume summer time;
-# in winter posts will land 1h earlier (17:00, 19:00) — acceptable.
+# Runs 2x/day Tallinn time. Cron is in UTC (UTC+3 summer).
+# Off-the-hour minute :47 avoids GitHub Actions peak-load delays.
 on:
   schedule:
-    - cron: "0 15 * * *"   # 18:00 Tallinn (summer)
-    - cron: "0 17 * * *"   # 20:00 Tallinn (summer)
+    - cron: "47 14 * * *"  # 17:47 Tallinn → lands ~18:00
+    - cron: "47 16 * * *"  # 19:47 Tallinn → lands ~20:00
   workflow_dispatch:
     inputs:
       dry_run:
