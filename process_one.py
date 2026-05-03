@@ -12,6 +12,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 from PIL import Image, ImageDraw, ImageFont
 
 DOWNLOAD_DIR = "/Users/predator/metaware/downloads"
@@ -271,58 +272,59 @@ def render(arg):
     body_lines = wrap_segments(body_text)
 
     os.makedirs(QUEUE_DIR, exist_ok=True)
-    overlay_path = f"{QUEUE_DIR}/{stem}_overlay.png"
     out_mp4 = f"{QUEUE_DIR}/{stem}.mp4"
     out_txt = f"{QUEUE_DIR}/{stem}.txt"
 
-    overlay = build_overlay(body_lines)
-    overlay.save(overlay_path)
-    print(f"[overlay] {overlay_path}", flush=True)
+    with tempfile.TemporaryDirectory(prefix=f"metaware_{stem}_") as tmp:
+        overlay_path = f"{tmp}/overlay.png"
+        overlay = build_overlay(body_lines)
+        overlay.save(overlay_path)
+        print(f"[overlay] {overlay_path}", flush=True)
 
-    # Auto-detect content bbox and build edge-to-edge filter
-    crop_info = detect_content_bbox(src)
-    if crop_info:
-        x, y, w, h = crop_info
-        print(f"[crop] content bbox in sub-frame: x={x} y={y} w={w} h={h}", flush=True)
-    else:
-        print("[crop] cropdetect failed — fallback to plain scale", flush=True)
-    fc = build_filter(crop_info)
+        # Auto-detect content bbox and build edge-to-edge filter
+        crop_info = detect_content_bbox(src)
+        if crop_info:
+            x, y, w, h = crop_info
+            print(f"[crop] content bbox in sub-frame: x={x} y={y} w={w} h={h}", flush=True)
+        else:
+            print("[crop] cropdetect failed — fallback to plain scale", flush=True)
+        fc = build_filter(crop_info)
 
-    # IG Reels max duration is 90s — trim source if longer
-    src_dur = float(subprocess.check_output([
-        "ffprobe", "-v", "error", "-show_entries", "format=duration",
-        "-of", "default=nw=1:nk=1", src,
-    ]).decode().strip())
-    out_dur = min(src_dur, 90.0)
-    trimmed = out_dur < src_dur
-    # IG content publishing has undocumented ~7MB fetch limit (despite 1GB
-    # officially allowed). Compute target video bitrate from out_dur to
-    # produce ~5MB output regardless of clip length.
-    target_kb = 5 * 1024  # ~5 MB
-    audio_kbps = 96
-    video_kbps = max(500, int(target_kb * 8 / out_dur) - audio_kbps)
-    cmd = ["ffmpeg", "-y", "-i", src, "-i", overlay_path]
-    if trimmed:
-        cmd += ["-t", "90"]
-    cmd += [
-        "-filter_complex", fc,
-        "-map", "[out]",
-        "-map", "0:a?",
-        "-c:v", "libx264", "-preset", "medium",
-        "-b:v", f"{video_kbps}k", "-maxrate", f"{int(video_kbps*1.2)}k",
-        "-bufsize", f"{video_kbps*2}k",
-        "-c:a", "aac", "-b:a", f"{audio_kbps}k",
-        "-movflags", "+faststart",
-        out_mp4,
-    ]
-    trim_note = f" (trimmed from {src_dur:.0f}s)" if trimmed else ""
-    print(f"[render] {out_dur:.0f}s{trim_note}, {video_kbps}k video", flush=True)
-    print(f"[render] ffmpeg...", flush=True)
-    r = subprocess.run(cmd, capture_output=True, text=True)
-    if r.returncode != 0:
-        print(f"[error] ffmpeg failed:\n{r.stderr[-800:]}", file=sys.stderr)
-        sys.exit(2)
-    print(f"[render] {out_mp4}", flush=True)
+        # IG Reels max duration is 90s — trim source if longer
+        src_dur = float(subprocess.check_output([
+            "ffprobe", "-v", "error", "-show_entries", "format=duration",
+            "-of", "default=nw=1:nk=1", src,
+        ]).decode().strip())
+        out_dur = min(src_dur, 90.0)
+        trimmed = out_dur < src_dur
+        # IG content publishing has undocumented ~7MB fetch limit (despite 1GB
+        # officially allowed). Compute target video bitrate from out_dur to
+        # produce ~5MB output regardless of clip length.
+        target_kb = 5 * 1024  # ~5 MB
+        audio_kbps = 96
+        video_kbps = max(500, int(target_kb * 8 / out_dur) - audio_kbps)
+        cmd = ["ffmpeg", "-y", "-i", src, "-i", overlay_path]
+        if trimmed:
+            cmd += ["-t", "90"]
+        cmd += [
+            "-filter_complex", fc,
+            "-map", "[out]",
+            "-map", "0:a?",
+            "-c:v", "libx264", "-preset", "medium",
+            "-b:v", f"{video_kbps}k", "-maxrate", f"{int(video_kbps*1.2)}k",
+            "-bufsize", f"{video_kbps*2}k",
+            "-c:a", "aac", "-b:a", f"{audio_kbps}k",
+            "-movflags", "+faststart",
+            out_mp4,
+        ]
+        trim_note = f" (trimmed from {src_dur:.0f}s)" if trimmed else ""
+        print(f"[render] {out_dur:.0f}s{trim_note}, {video_kbps}k video", flush=True)
+        print(f"[render] ffmpeg...", flush=True)
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        if r.returncode != 0:
+            print(f"[error] ffmpeg failed:\n{r.stderr[-800:]}", file=sys.stderr)
+            sys.exit(2)
+        print(f"[render] {out_mp4}", flush=True)
 
     with open(out_txt, "w") as f:
         f.write(caption)
