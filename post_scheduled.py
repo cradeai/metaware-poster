@@ -79,6 +79,19 @@ def upload_catbox(path):
     return url
 
 
+def get_video_url(name):
+    """Pick a public URL for IG to fetch from.
+    - In GitHub Actions: use raw.githubusercontent.com (file already in repo,
+      catbox blocks cloud IPs anyway).
+    - Locally: upload to catbox.moe.
+    """
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    sha = os.environ.get("GITHUB_SHA")
+    if repo and sha:
+        return f"https://raw.githubusercontent.com/{repo}/{sha}/queue/{name}.mp4"
+    return upload_catbox(f"{QUEUE}/{name}.mp4")
+
+
 def pick_next_from_queue():
     """Pick earliest queue item by numeric N (metaware1 before metaware2 before metaware10)."""
     pattern = re.compile(rf"^{BRAND}(\d+)\.mp4$")
@@ -118,9 +131,9 @@ def post_one():
     with open(txt) as f:
         caption = f.read().strip()
 
-    log(f"picked {name} ({os.path.getsize(mp4)//1024} KB) — uploading to catbox...")
-    video_url = upload_catbox(mp4)
-    log(f"upload OK: {video_url}")
+    log(f"picked {name} ({os.path.getsize(mp4)//1024} KB)")
+    video_url = get_video_url(name)
+    log(f"video URL: {video_url}")
 
     log("creating container...")
     container = api("POST", f"{user_id}/media", {
