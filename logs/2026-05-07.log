@@ -1,0 +1,11 @@
+[2026-05-07 16:28:04] picked metaware8 (5971 KB)
+[2026-05-07 16:28:04] video URL: https://raw.githubusercontent.com/cradeai/metaware-poster/fca3b910c81d8a349ee583196cc66072a5ebbbe2/queue/metaware8.mp4
+[2026-05-07 16:28:04] creating container...
+[2026-05-07 16:28:05] container 18086038406161499 created — polling...
+[2026-05-07 16:28:05]   poll 0: IN_PROGRESS
+[2026-05-07 16:28:20]   poll 3: IN_PROGRESS
+[2026-05-07 16:28:36]   poll 6: IN_PROGRESS
+[2026-05-07 16:28:51]   poll 9: FINISHED
+[2026-05-07 16:28:51] publishing...
+[2026-05-07 16:28:56] published: media_id=18080025971412086
+[2026-05-07 16:28:56] archived to posted/20260507_1628_metaware8.*
