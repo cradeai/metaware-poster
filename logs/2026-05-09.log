@@ -1,0 +1,9 @@
+[2026-05-09 15:36:24] picked metaware12 (4038 KB)
+[2026-05-09 15:36:24] video URL: https://raw.githubusercontent.com/cradeai/metaware-poster/b7677bf120fb073017e2fafccbfa6582a4fbfd34/queue/metaware12.mp4
+[2026-05-09 15:36:24] creating container...
+[2026-05-09 15:36:25] container 18086365370161499 created — polling...
+[2026-05-09 15:36:25]   poll 0: IN_PROGRESS
+[2026-05-09 15:36:41]   poll 3: IN_PROGRESS
+[2026-05-09 15:36:51] publishing...
+[2026-05-09 15:36:58] published: media_id=17970360645047615
+[2026-05-09 15:36:58] archived to posted/20260509_1536_metaware12.*
