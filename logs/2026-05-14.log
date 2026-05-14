@@ -9,3 +9,13 @@
 [2026-05-14 16:34:33] publishing...
 [2026-05-14 16:34:38] published: media_id=18206662384339314
 [2026-05-14 16:34:38] archived to posted/20260514_1634_metaware22.*
+[2026-05-14 18:24:55] picked metaware23 (4734 KB)
+[2026-05-14 18:24:55] video URL: https://raw.githubusercontent.com/cradeai/metaware-poster/df5910ccbeb48dad998f65a52eeeb23c4536c1d8/queue/metaware23.mp4
+[2026-05-14 18:24:55] creating container...
+[2026-05-14 18:24:56] container 18087260333161499 created — polling...
+[2026-05-14 18:24:56]   poll 0: IN_PROGRESS
+[2026-05-14 18:25:12]   poll 3: IN_PROGRESS
+[2026-05-14 18:25:28]   poll 6: IN_PROGRESS
+[2026-05-14 18:25:33] publishing...
+[2026-05-14 18:25:40] published: media_id=17859246309601873
+[2026-05-14 18:25:40] archived to posted/20260514_1825_metaware23.*
