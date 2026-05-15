@@ -1,0 +1,9 @@
+[2026-05-15 16:27:52] picked metaware24 (4330 KB)
+[2026-05-15 16:27:52] video URL: https://raw.githubusercontent.com/cradeai/metaware-poster/b5ac42f51fce1616c459387450542d00cfeb2080/queue/metaware24.mp4
+[2026-05-15 16:27:52] creating container...
+[2026-05-15 16:27:53] container 18087411680161499 created — polling...
+[2026-05-15 16:27:54]   poll 0: IN_PROGRESS
+[2026-05-15 16:28:09]   poll 3: IN_PROGRESS
+[2026-05-15 16:28:20] publishing...
+[2026-05-15 16:28:25] published: media_id=18137110027527767
+[2026-05-15 16:28:25] archived to posted/20260515_1628_metaware24.*
